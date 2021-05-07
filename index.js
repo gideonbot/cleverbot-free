@@ -8,10 +8,14 @@ let cookies;
  * @param {string} stimulus The message to be sent
  * @param {string[]?} context An array of previous messages and responses
  * @param {string?} language The language of the message (null for auto detect)
+ * @param {number?} timeout The timeout for the request
  * @returns {Promise<string>} The response
  */
-module.exports = async (stimulus, context = [], language) => {
+module.exports = async (stimulus, context = [], language, timeout) => {
     const _context = context.slice(); // clone array to prevent subsequent calls from modifying it
+
+    if (timeout === undefined || isNaN(timeout)) timeout = 5000;
+    else timeout = Number(timeout);
 
     if (cookies == null) {
         // we must get the XVIS cookie before we can make requests to the API
@@ -36,7 +40,7 @@ module.exports = async (stimulus, context = [], language) => {
 
     const req = await superagent.post("https://www.cleverbot.com/webservicemin?uc=UseOfficialCleverbotAPI")
         .timeout({
-            response: 5000,
+            response: timeout,
             deadline: 60000,
         })
         .set("Cookie", cookies)
